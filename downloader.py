@@ -1,5 +1,6 @@
 import os
 import sys
+import urllib.parse
 import yt_dlp
 
 
@@ -16,6 +17,19 @@ class Downloader:
 
         return os.path.join(pasta, nome)
 
+    def limpar_url(self, url):
+        """Remove parâmetros desnecessários da URL mantendo apenas o ID do vídeo."""
+        try:
+            parsed = urllib.parse.urlparse(url)
+            if "youtube.com" in parsed.netloc and "watch" in parsed.path:
+                query = urllib.parse.parse_qs(parsed.query)
+                video_id = query.get("v", [None])[0]
+                if video_id:
+                    return f"https://www.youtube.com/watch?v={video_id}"
+        except Exception:
+            pass
+        return url
+
     def configuracao_base(self):
         opcoes = {
             "quiet": True,
@@ -28,7 +42,13 @@ class Downloader:
             "fragment_retries": 10,
             "continuedl": True,
             "merge_output_format": "mp4",
-            "no_color": True
+            "no_color": True,
+            # Força o yt-dlp a usar clientes mais estáveis do YouTube
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android", "web"]
+                }
+            }
         }
 
         caminho_cookie = self.caminho_arquivo("cookies.txt")
@@ -38,11 +58,12 @@ class Downloader:
         return opcoes
 
     def buscar_video(self, url):
+        url_limpa = self.limpar_url(url)
         opcoes = self.configuracao_base()
 
         try:
             with yt_dlp.YoutubeDL(opcoes) as ydl:
-                self.info = ydl.extract_info(url, download=False)
+                self.info = ydl.extract_info(url_limpa, download=False)
         except Exception as erro:
             raise Exception("Não foi possível buscar o vídeo.\n\n" + str(erro))
 
@@ -77,12 +98,14 @@ class Downloader:
         return lista
 
     def baixar(self, url, formato, pasta, progresso=None):
+        url_limpa = self.limpar_url(url)
         os.makedirs(pasta, exist_ok=True)
         opcoes = self.configuracao_base()
 
         formato_download = (
             f"bestvideo[height<={formato}]+bestaudio/"
-            f"best[height<={formato}]/best"
+            f"best[height<={formato}]/"
+            "best/b"
         )
 
         opcoes.update({
@@ -95,13 +118,9 @@ class Downloader:
 
         try:
             with yt_dlp.YoutubeDL(opcoes) as ydl:
-                # Baixa o vídeo e obtém as informações reais do download
-                info = ydl.extract_info(url, download=True)
-                
-                # Obtém o nome exato do arquivo gerado
+                info = ydl.extract_info(url_limpa, download=True)
                 caminho_gerado = ydl.prepare_filename(info)
                 
-                # Caso o yt-dlp tenha fundido em mp4
                 base, _ = os.path.splitext(caminho_gerado)
                 caminho_mp4 = base + ".mp4"
 
