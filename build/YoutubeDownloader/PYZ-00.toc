@@ -1,4 +1,4 @@
-('C:\\Users\\iasdo\\OneDrive\\Documentos\\YoutubeDownloader\\build\\main\\PYZ-00.pyz',
+('C:\\Users\\iasdo\\OneDrive\\Documentos\\YoutubeDownloader\\build\\YoutubeDownloader\\PYZ-00.pyz',
  [('PIL',
    'C:\\Users\\iasdo\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PIL\\__init__.py',
    'PYMODULE'),
