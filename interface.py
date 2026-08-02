@@ -126,15 +126,12 @@ class Interface(ctk.CTk):
         )
         lbl_historico.pack(pady=(10, 2), anchor="w", padx=100)
 
-        # Frame rolável onde cada vídeo será inserido como um link clicável
         self.lista_downloads = ctk.CTkScrollableFrame(
             self,
             width=680,
             height=120
         )
         self.lista_downloads.pack(pady=(0, 15))
-
-    # --- MÉTODOS DE AÇÃO E UTILITÁRIOS ---
 
     def colar_link(self):
         """Lê a área de transferência e cola no campo de link."""
@@ -149,7 +146,7 @@ class Interface(ctk.CTk):
             messagebox.showwarning("Aviso", "Não foi possível ler a área de transferência.")
 
     def abrir_arquivo(self, caminho):
-        """Abre o arquivo no reprodutor padrão do sistema operacional."""
+        """Abre o arquivo diretamente no reprodutor padrão do sistema."""
         try:
             if os.path.exists(caminho):
                 if sys.platform == "win32":
@@ -159,7 +156,6 @@ class Interface(ctk.CTk):
                 else:
                     subprocess.Popen(["xdg-open", caminho])
             else:
-                # Caso o nome do arquivo tenha mudado, abre a pasta do download
                 pasta = os.path.dirname(caminho)
                 if os.path.exists(pasta):
                     if sys.platform == "win32":
@@ -173,30 +169,18 @@ class Interface(ctk.CTk):
         except Exception as e:
             messagebox.showerror("Erro ao abrir", str(e))
 
-    def adicionar_ao_historico(self, titulo, pasta):
-        """Adiciona um item clicável à lista de vídeos baixados."""
-        # Caminho onde o yt-dlp provavelmente salvou o vídeo em MP4
-        caminho_provavel = os.path.join(pasta, f"{titulo}.mp4")
-
-        # Se não achar exatamente .mp4, procura por qualquer arquivo na pasta contendo o título
-        caminho_final = caminho_provavel
-        if not os.path.exists(caminho_provavel) and os.path.exists(pasta):
-            for arq in os.listdir(pasta):
-                if arq.startswith(titulo[:20]):  # Compara os primeiros caracteres do título
-                    caminho_final = os.path.join(pasta, arq)
-                    break
-
-        # Cria o item clicável (estilo link)
+    def adicionar_ao_historico(self, titulo, caminho_exato):
+        """Adiciona o botão no histórico apontando para o arquivo salvo."""
         btn_item = ctk.CTkButton(
             self.lista_downloads,
             text=f"🎬  {titulo}",
             anchor="w",
             fg_color="transparent",
-            text_color="#3B82F6",  # Azul estilo hyperlink
+            text_color="#3B82F6",
             hover_color="#2A2D32",
             height=30,
             font=("Arial", 13, "underline"),
-            command=lambda path=caminho_final: self.abrir_arquivo(path)
+            command=lambda path=caminho_exato: self.abrir_arquivo(path)
         )
         btn_item.pack(fill="x", padx=5, pady=2)
 
@@ -279,7 +263,8 @@ class Interface(ctk.CTk):
 
     def download_thread(self, formato):
         try:
-            self.downloader.baixar(
+            # Obtém o caminho EXATO retornado pelo yt-dlp
+            caminho_arquivo = self.downloader.baixar(
                 self.url,
                 formato,
                 self.pasta.get(),
@@ -288,9 +273,11 @@ class Interface(ctk.CTk):
 
             self.status.configure(text="Download concluído!")
 
-            # Adiciona o link na interface de forma segura para a thread principal
-            pasta_destino = self.pasta.get()
-            self.after(0, lambda: self.adicionar_ao_historico(self.titulo_atual, pasta_destino))
+            # Adiciona o link direto para o arquivo
+            self.after(
+                0, 
+                lambda: self.adicionar_ao_historico(self.titulo_atual, caminho_arquivo)
+            )
 
         except Exception as erro:
             messagebox.showerror("Erro", str(erro))
