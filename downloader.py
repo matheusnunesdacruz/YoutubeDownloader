@@ -43,12 +43,6 @@ class Downloader:
             "continuedl": True,
             "merge_output_format": "mp4",
             "no_color": True,
-            # Força o yt-dlp a usar clientes mais estáveis do YouTube
-            "extractor_args": {
-                "youtube": {
-                    "player_client": ["android", "web"]
-                }
-            }
         }
 
         caminho_cookie = self.caminho_arquivo("cookies.txt")
@@ -81,6 +75,7 @@ class Downloader:
             if not altura:
                 continue
 
+            # Considera apenas vídeos (mesmo os sem áudio nativo, que o ffmpeg vai juntar depois)
             if formato.get("vcodec") == "none":
                 continue
 
@@ -102,10 +97,11 @@ class Downloader:
         os.makedirs(pasta, exist_ok=True)
         opcoes = self.configuracao_base()
 
+        # Seleciona o vídeo na resolução desejada (ou melhor disponível) + melhor áudio
         formato_download = (
             f"bestvideo[height<={formato}]+bestaudio/"
             f"best[height<={formato}]/"
-            "best/b"
+            "best"
         )
 
         opcoes.update({
