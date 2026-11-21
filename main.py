@@ -1,6 +1,10 @@
 from interface import Interface
 
 
-app = Interface()
+def main():
+    app = Interface()
+    app.mainloop()
 
-app.mainloop()
+
+if __name__ == "__main__":
+    main()

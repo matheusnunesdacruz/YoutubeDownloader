@@ -1,2 +1,0 @@
-pyinstaller --onefile --windowed main.py
-pyinstaller --noconsole --onedir --windowed main.py
