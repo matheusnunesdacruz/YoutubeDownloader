@@ -8,38 +8,30 @@ ARQUIVO_CONFIG = "config.json"
 class Config:
 
     def __init__(self):
-
         self.dados = {
             "pasta_download": os.path.join(
                 os.path.expanduser("~"),
                 "Downloads"
             ),
-
             "tema": "dark"
         }
-
         self.carregar()
 
     def carregar(self):
-
         if os.path.exists(ARQUIVO_CONFIG):
-
             try:
-
                 with open(
                     ARQUIVO_CONFIG,
                     "r",
                     encoding="utf-8"
                 ) as arquivo:
+                    dados = json.load(arquivo)
 
-                    self.dados = json.load(arquivo)
-
-            except:
-
+                if isinstance(dados, dict):
+                    self.dados.update(dados)
+            except (OSError, json.JSONDecodeError):
                 self.salvar()
-
         else:
-
             self.salvar()
 
     def salvar(self):

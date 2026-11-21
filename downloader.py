@@ -15,7 +15,7 @@ class Downloader:
     - Usa seletores de formato com fallback.
     - Procura automaticamente por ffmpeg.
     - Procura automaticamente por Deno.
-    - Usa cookies.txt apenas quando o arquivo realmente existe.
+    - Funciona com conteúdo público sem cookies ou login.
     """
 
     def __init__(self):
@@ -132,23 +132,6 @@ class Downloader:
         return None
 
     # =========================================================
-    # COOKIES
-    # =========================================================
-
-    def localizar_cookies(self):
-        caminho = self.caminho_arquivo(
-            "cookies.txt"
-        )
-
-        if (
-            os.path.isfile(caminho)
-            and os.path.getsize(caminho) > 0
-        ):
-            return caminho
-
-        return None
-
-    # =========================================================
     # URL
     # =========================================================
 
@@ -244,12 +227,17 @@ class Downloader:
             "cachedir": self.caminho_arquivo(
                 "yt-dlp-cache"
             ),
+
+            "extractor_args": {
+                "youtube": {
+                    "player_client": [
+                        "android",
+                        "ios",
+                        "web",
+                    ]
+                }
+            },
         }
-
-        cookies = self.localizar_cookies()
-
-        if cookies:
-            opcoes["cookiefile"] = cookies
 
         ffmpeg_dir = self.localizar_ffmpeg()
 
@@ -280,7 +268,7 @@ class Downloader:
                 self.info = ydl.extract_info(
                     url_limpa,
                     download=False,
-                    process=False
+                    process=True
                 )
 
         except Exception as erro:
@@ -296,23 +284,8 @@ class Downloader:
                     "\n\nO YouTube não entregou "
                     "formatos utilizáveis para "
                     "esta sessão."
-                    "\n\nVerifique o Deno e, "
-                    "se necessário, o cookies.txt."
-                )
-
-            if (
-                "not a bot"
-                in mensagem.lower()
-                or
-                "sign in to confirm"
-                in mensagem.lower()
-            ):
-
-                mensagem += (
-                    "\n\nO YouTube está exigindo "
-                    "uma sessão autenticada."
-                    "\n\nUse um cookies.txt "
-                    "válido do YouTube."
+                    "\n\nVerifique o Deno e atualize "
+                    "o yt-dlp."
                 )
 
             raise Exception(
@@ -664,21 +637,6 @@ class Downloader:
                     )
 
             if (
-                "not a bot"
-                in mensagem.lower()
-                or
-                "sign in to confirm"
-                in mensagem.lower()
-            ):
-
-                mensagem += (
-                    "\n\nO YouTube exigiu "
-                    "autenticação."
-                    "\n\nUse um cookies.txt "
-                    "válido."
-                )
-
-            if (
                 "Requested format is not available"
                 in mensagem
             ):
@@ -687,8 +645,8 @@ class Downloader:
                     "\n\nNenhum formato compatível "
                     "foi disponibilizado para "
                     "esta sessão."
-                    "\n\nConfira Deno, yt-dlp "
-                    "e cookies.txt."
+                    "\n\nConfira o Deno e atualize "
+                    "o yt-dlp."
                 )
 
             raise Exception(
