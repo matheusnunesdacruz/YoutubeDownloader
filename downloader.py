@@ -228,15 +228,6 @@ class Downloader:
                 "yt-dlp-cache"
             ),
 
-            "extractor_args": {
-                "youtube": {
-                    "player_client": [
-                        "android",
-                        "ios",
-                        "web",
-                    ]
-                }
-            },
         }
 
         ffmpeg_dir = self.localizar_ffmpeg()
@@ -647,6 +638,16 @@ class Downloader:
                     "esta sessão."
                     "\n\nConfira o Deno e atualize "
                     "o yt-dlp."
+                )
+
+            if "ffmpeg is not installed" in mensagem.lower():
+                mensagem = (
+                    "O FFmpeg não foi encontrado. Ele é necessário "
+                    "para combinar faixas separadas de vídeo e áudio, "
+                    "como 720p neste vídeo.\n\n"
+                    "Instale o FFmpeg e adicione ffmpeg.exe ao PATH "
+                    "do Windows, ou coloque-o ao lado do executável "
+                    "ou na pasta ffmpeg\\bin. Depois, reinicie o aplicativo."
                 )
 
             raise Exception(

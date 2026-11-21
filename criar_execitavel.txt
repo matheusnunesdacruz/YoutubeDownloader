@@ -1,0 +1,2 @@
+.\.venv\Scripts\python.exe -m PyInstaller --clean --noconfirm --onefile --windowed --name YoutubeDownloader main.py
+.\.venv\Scripts\python.exe -m PyInstaller --clean --noconfirm --onedir --windowed --name YoutubeDownloader main.py
