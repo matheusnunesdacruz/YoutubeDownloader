@@ -44,32 +44,16 @@ O arquivo `cookies.txt` não é necessário e não é carregado pelo programa.
 
 O PyInstaller gera o executável para a mesma plataforma e arquitetura do Python
 usado na compilação. Para gerar a versão de Windows, faça o processo em um
-computador com Windows.
-
-1. Instale o Python 3.10 ou superior e abra o PowerShell na pasta do projeto,
-   onde está o arquivo `main.py`.
-2. Crie um ambiente virtual e instale as dependências do aplicativo:
+computador com Windows. Instale o Python 3.10 ou superior e execute o script
+abaixo a partir de qualquer pasta:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+powershell -ExecutionPolicy Bypass -File "C:\caminho\para\YoutubeDownloader\criar_executavel.ps1"
 ```
 
-3. Instale o PyInstaller nesse mesmo ambiente:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install pyinstaller
-```
-
-4. Gere um único arquivo executável:
-
-```powershell
-.\.venv\Scripts\python.exe -m PyInstaller --clean --noconfirm --onefile --windowed --name YoutubeDownloader main.py
-```
-
-5. Aguarde a compilação. O arquivo estará em
-   `dist\YoutubeDownloader.exe`; dê dois cliques nele para abrir o aplicativo.
+O script cria `.venv` se ainda não existir, instala as dependências e o
+PyInstaller, e compila o aplicativo. O executável estará em
+`dist\YoutubeDownloader.exe`.
 
 O FFmpeg e o Deno não são incluídos no executável. Instale o FFmpeg e adicione
 `ffmpeg.exe` ao `PATH` do Windows, ou coloque-o ao lado do executável (ou em
